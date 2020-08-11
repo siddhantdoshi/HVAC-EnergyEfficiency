@@ -31,6 +31,10 @@ class HeaterEnv4(gym.Env):
 		# self.energy_history = []
 		# self.absorption_lag = 0.5
 
+		self.delta_temp_history = []
+		self.delta_temp_moving_average = 0.0
+		self.rate_precision = 0.01
+
 		self.max_voltage = 9.66
 		self.resistance = 4.0
 
@@ -63,6 +67,11 @@ class HeaterEnv4(gym.Env):
 
 		self.delta_temp = self.rounded_temp - self.prev_temp
 
+		self.delta_temp_history.insert(0, self.delta_temp)
+		self.delta_temp_history = self.delta_temp_history[:10]
+
+		self.delta_temp_moving_average = round(sum(self.delta_temp_history) / (len(self.delta_temp_history) * self.rate_precision)) * self.rate_precision
+
 		# print(f"Temperature change: {self.delta_temp}")
 
 		self.prev_temp = self.rounded_temp
@@ -76,44 +85,46 @@ class HeaterEnv4(gym.Env):
 
 		return self.rounded_temp, reward, episode_done, {} 
 
-	def reward(self, max_settling_time, steps):
+	def reward1(self, max_settling_time, steps):
 		error_temp = (self.rounded_temp - self.set_point) / (self.set_point - self.init_temp)
 		error_energy = (self.total_energy - self.total_energy_absorbed) / (self.mass * self.specific_heat_capacity)
 		# error_time = ((steps * self.time_step) - max_settling_time) / max_settling_time
 
 		if error_temp <= - 0.3:
-			reward_temp = 10 * self.delta_temp
+			reward_temp = 10 * self.delta_temp_moving_average
 
 		elif error_temp >= 0.3:
-			reward_temp = -100 * self.delta_temp
+			reward_temp = -100 * self.delta_temp_moving_average
 
 		else:
-			reward_temp = - abs(error_temp) * self.delta_temp
+			reward_temp = - (0.3 * self.delta_temp_moving_average) / (abs(error_temp) + 0.01)
 
 		reward_energy = - (error_energy ** 2)
 
-		# if not self.reached_target:
-		# 	if error_temp >= 0:
+		"""
+		if not self.reached_target:
+			if error_temp >= 0:
 
-		# 		self.reached_target = True
-		# 		reward_time = 0
+				self.reached_target = True
+				reward_time = 0
 				
-		# 	elif (steps * self.time_step) <= max_settling_time:	
-		# 		reward_time = - error_time
-		# 		# print("In elif")
+			elif (steps * self.time_step) <= max_settling_time:	
+				reward_time = - error_time
+				# print("In elif")
 
-		# 	else:
-		# 		reward_time = - 10
-		# 		# print("In first else")
+			else:
+				reward_time = - 10
+				# print("In first else")
 
-		# else:
-		# 	reward_time = 0
-			# print("In second else")
+		else:
+			reward_time = 0
+			print("In second else")
 
-		# if error_temp > 0:
-		# 	reward_temp *= -100
+		if error_temp > 0:
+			reward_temp *= -100
 
-		# reward = 0.7 * reward_temp + 0.3 * reward_energy
+		reward = 0.7 * reward_temp + 0.3 * reward_energy
+		"""
 
 		return reward_temp
 

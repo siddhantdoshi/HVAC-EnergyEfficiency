@@ -35,7 +35,7 @@ class HeaterEnv5(gym.Env):
 		self.resistance = 4.0
 
 		self.max_error = 5.0
-		self.max_velocity = 0.1075
+		self.max_velocity = 0.10
 
 		self.time_step = 1.0
 
@@ -70,6 +70,7 @@ class HeaterEnv5(gym.Env):
 		self.delta_temp_history = self.delta_temp_history[:10]
 
 		self.delta_temp_moving_average = round(sum(self.delta_temp_history) / (len(self.delta_temp_history) * self.rate_precision)) * self.rate_precision
+		# print(f"Moving average: {self.delta_temp_moving_average}")
 
 		# print(f"Average temperature change: {self.delta_temp_moving_average}")
 
