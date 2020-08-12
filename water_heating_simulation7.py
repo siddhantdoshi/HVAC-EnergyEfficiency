@@ -13,21 +13,20 @@ import random
 
 import matplotlib.pyplot as plt
 
-env = gym.make('HeaterEnv-v5')
+env = gym.make('HeaterEnv-v6')
 
-total_episodes = 5000
+total_episodes = 3000
 max_steps = 900
 
 qtable = np.zeros((17000, 255))
-# qtable[: 51, 255] = 100
-# qtable[61: , 0] = 100
+
 print(qtable.shape)
 print(qtable)
 
 final_temp = []
 test_temp = []
 
-learning_rate = 0.1
+learning_rate = 0.5
 discount_rate = 0.8
 
 epsilon = 1.0				# Exploration rate
@@ -74,6 +73,7 @@ for episode in range(total_episodes):
 		else:
 			action = env.action_space.sample()
 
+
 		temperature, delta_temp = state
 		temperature += env.set_point
 
@@ -85,17 +85,19 @@ for episode in range(total_episodes):
 		# print(f"Temperature: {temperature}")
 		# print(f"Temperature change: {delta_temp}")
 
+		if temperature > env.set_point + 0.3:
+			action = 0
+
 		new_state, reward, done, info = env.step(action)
 
 		new_index = state_to_index(new_state)
+
 		# print(f"Action: {action}")
 		# print(f"New state: {new_state}")
 		# print(f"Reward: {reward}")
 		# print(f"new_index: {new_index}")
 
-		qtable[index, action] = qtable[index, action] + learning_rate * \
-			(reward + discount_rate *
-			 np.max(qtable[new_index, :]) - qtable[index, action])
+		qtable[index, action] = qtable[index, action] + learning_rate * (reward + discount_rate * np.max(qtable[new_index, :]) - qtable[index, action])
 
 		# print(f"Qtable value: {qtable[index, action]}")
 
@@ -104,12 +106,12 @@ for episode in range(total_episodes):
 		if done or (step == max_steps - 1):
 			final_temp.append(temperature)
 
-			print(
-				f"Episode finished after {step + 1} timesteps with temperature: {temperature} degrees")
+			print(f"Episode finished after {step + 1} timesteps with temperature: {temperature} degrees")
+			
 			break
 
 		epsilon = min_epsilon + (max_epsilon - min_epsilon) * \
-                    np.exp(-decay_rate * episode)
+					np.exp(-decay_rate * episode)
 
 # qtable[1113: , 0] = 100
 
@@ -122,14 +124,18 @@ np.savetxt("qtable_multistate.csv", qtable, delimiter=",")
 state = env.reset()
 index = state_to_index(state)
 
-for step in range(2*max_steps):
+for step in range(2 * max_steps):
 
 		if temperature >= env.set_point + 0.3:
 			action = 0
 		else:
 			action = np.argmax(qtable[index, :])
 
-		
+		# if temperature >= env.set_point:
+		# 	action = 0
+
+		# else:
+		# 	action = 255
 
 		temperature, delta_temp = state
 		temperature += env.set_point
@@ -142,12 +148,11 @@ for step in range(2*max_steps):
 		test_temp.append(temperature)
 
 		# if done:
-
-		# 	print(
-		# 		f"Episode finished after {step + 1} timesteps with temperature: {temperature}")
+		# 	print(f"Episode finished after {step + 1} timesteps with temperature: {temperature}")
+			
 		# 	break
 
-final_actions = [np.argmax(qtable[i, :]) for i in range(17000)]
+final_actions = [np.argmax(qtable[i, :]) for i in range(11600)]
 
 plt.plot(np.arange(0, total_episodes), final_temp, "ro")
 plt.show()

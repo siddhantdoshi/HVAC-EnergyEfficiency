@@ -15,6 +15,7 @@ class HeaterEnv7(gym.Env):
 		self.mass = 0.05
 		self.specific_heat_capacity = 4180.0
 
+		self.room_temp = 23.5
 		self.init_temp = 25.0
 		self.set_point = 30.0
 		self.temp_precision = 0.01
@@ -48,25 +49,18 @@ class HeaterEnv7(gym.Env):
 
 		error, delta_temp = self.state
 
-		if (error >= 0.3):
-			action = 0
-
 		voltage = ((self.max_voltage) / 255) * action
 
 		energy_supplied = ((voltage ** 2) * self.time_step) / self.resistance
 
-		# energy_dissipated = 0.9
-		# y = 8E-12x3 - 3E-08x2 + 3E-05x - 0.02
-		x = (self.set_point - self.init_temp) - error
-		energy_dissipated = (8E-12*(x**3) - 3E-08*(x**2) + 3E-05 *
-							 x - 0.02) * (self.mass * self.specific_heat_capacity)
+		# energy_dissipated = -0.9
+
+		x = (self.set_point + error) - self.room_temp
+		# energy_dissipated = (8E-12 * (x ** 3) - 3E-08 * (x ** 2) + 3E-05 * x - 0.02) * (self.mass * self.specific_heat_capacity)
+
+		energy_dissipated = -0.64 - 0.18 * x
 
 		# energy disipated is negative as per above equation, change it to positive
-
-		if energy_dissipated < 0:
-			energy_dissipated = -energy_dissipated
-		else:
-			energy_dissipated = 0
 
 		# print("---- Step ----")
 		# print(f"State: {self.state}")
@@ -74,12 +68,11 @@ class HeaterEnv7(gym.Env):
 		# print(f"Energy Dissipated: {energy_dissipated}")
 		# print(f"Energy supplied: {energy_supplied}")
 
-		self.total_energy += energy_supplied - energy_dissipated
+		self.total_energy += energy_supplied + energy_dissipated
 
 		# print(f"Total energy : {self.total_energy}")
 
-		delta_temp = round((0.032 * (self.total_energy - self.total_energy_absorbed)) / (
-			(self.mass * self.specific_heat_capacity) * self.temp_precision)) * self.temp_precision
+		delta_temp = round((0.03 * (self.total_energy - self.total_energy_absorbed)) / ((self.mass * self.specific_heat_capacity) * self.temp_precision)) * self.temp_precision
 		# print(f"delta_temp: {delta_temp}")
 		error += delta_temp
 		error = round(error / self.temp_precision) * self.temp_precision
@@ -98,10 +91,10 @@ class HeaterEnv7(gym.Env):
 			episode_done = True
 
 		if len(self.temp_history) > 60:
-			last_ten_errors = self.temp_history[-60:]
-			avg_error = sum(last_ten_errors)/60
-			max_error = max(last_ten_errors)
-			min_error = min(last_ten_errors)
+			last_sixty_errors = self.temp_history[-60:]
+			avg_error = sum(last_sixty_errors) / 60.0
+			max_error = max(last_sixty_errors)
+			min_error = min(last_sixty_errors)
 			# print(f"avg_error: {avg_error}")
 			# print(f"max_error: {max_error}")
 			# print(f"min_error: {min_error}")
@@ -109,53 +102,62 @@ class HeaterEnv7(gym.Env):
 			if abs(avg_error) <= 0.1 and max_error <= 0.2 and min_error >= -0.2:
 				episode_done = True
 
-		reward = self.reward(error, delta_temp)
+		reward = self.old_reward(error, delta_temp)
 
 		return np.array(self.state), reward, episode_done, {}
 
 	def reward(self, error, velocity):
-		if velocity == 0.0 and error == 0:
-			return 15000
 
-		# last_ten_errors = self.temp_history[-10:]
-		# avg_error = sum(last_ten_errors)/10.0
-		# max_error = max(last_ten_errors)
-		# min_error = min(last_ten_errors)
+		last_ten_errors = self.temp_history[-10:]
+		avg_error = sum(last_ten_errors) / 10.0
+		max_error = max(last_ten_errors)
+		min_error = min(last_ten_errors)
 
-		# if abs(avg_error) <= 0.2 and max_error <= 0.2 and min_error >= -0.2:
-		# 	return 10
+		if abs(avg_error) <= 0.1 and max_error <= 0.2 and min_error >= -0.2:
+			return 10000
 
 		if error > 0:
 			# reward = -ve and proportional to velocity and error
-			return -10000 - (1000 * velocity) - 1000*error
+			return -10000 - (1000 * velocity * error)
 
-		if error > -0.5:
+		if error > -0.75:
 			if velocity == 0:
 				return 15000
-			else:
-				return 100/velocity
 
-		if error > -1:
+			else:
+				return 100.0 / velocity
+
+		if error > -1.5:
 			if velocity == 0:
 				return 1500
-			else:
-				return 10/velocity
 
-		if error > -2:
+			else:
+				return 10.0 / velocity
+
+		if error > -2.5:
 			if velocity == 0:
 				return 150
-			else:
-				return 1/velocity
 
-		if error < 0 and velocity > 0:
-			return 100*velocity  # + 10 * (self.set_point - self.init_temp - error)
-		# reward = -error/velocity
+			else:
+				return 1.0 / velocity
+
+		if error < 0:
+			return 100 * velocity
+		
 		return 0
 
 	def old_reward(self, error, velocity):
-		if abs(error) >= 0.0 and abs(error) <= 0.3:
+		last_ten_errors = self.temp_history[-10:]
+		avg_error = sum(last_ten_errors) / 10.0
+		max_error = max(last_ten_errors)
+		min_error = min(last_ten_errors)
+
+		if abs(avg_error) <= 0.2 and max_error <= 0.2 and min_error >= -0.2:
+			return 100
+
+		if abs(error) >= 0.0 and abs(error) <= 1.5:
 			if error <= 0:
-				if velocity < 0:
+				if velocity <= 0:
 					reward = -0.5
 
 				else:
@@ -171,7 +173,7 @@ class HeaterEnv7(gym.Env):
 			else:
 				reward = -70 * velocity
 
-		if error > 0:
+		if error > 0.3:
 			reward *= 10
 
 		return reward
