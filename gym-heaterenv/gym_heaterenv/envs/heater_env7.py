@@ -78,8 +78,7 @@ class HeaterEnv7(gym.Env):
 		error = round(error / self.temp_precision) * self.temp_precision
 		# print(f"Error: {error}")
 
-		self.total_energy_absorbed = (
-			self.max_error + error) * self.mass * self.specific_heat_capacity
+		self.total_energy_absorbed = (self.max_error + error) * self.mass * self.specific_heat_capacity
 		# print(f"Total energy absorbed: {self.total_energy_absorbed}")
 
 		self.state = (error, delta_temp)
@@ -155,9 +154,9 @@ class HeaterEnv7(gym.Env):
 		if abs(avg_error) <= 0.2 and max_error <= 0.2 and min_error >= -0.2:
 			return 100
 
-		if abs(error) >= 0.0 and abs(error) <= 1.5:
+		if abs(error) >= 0.0 and abs(error) <= 2.0:
 			if error <= 0:
-				if velocity <= 0:
+				if velocity < 0:
 					reward = -0.5
 
 				else:
