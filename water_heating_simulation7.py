@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 
 env = gym.make('HeaterEnv-v6')
 
-total_episodes = 3000
+total_episodes = 5000
 max_steps = 900
 
 qtable = np.zeros((17000, 255))
@@ -115,7 +115,7 @@ for episode in range(total_episodes):
 
 # qtable[1113: , 0] = 100
 
-np.savetxt("qtable_multistate.csv", qtable, delimiter=",")
+np.savetxt("qtable_multistate7.csv", qtable, delimiter=",")
 
 
 #Testing

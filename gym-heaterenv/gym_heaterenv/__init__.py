@@ -31,6 +31,16 @@ register(
 )
 
 register(
+	id='HeaterEnv-v6',
+	entry_point='gym_heaterenv.envs:HeaterEnv7',
+)
+
+register(
+	id='HeaterEnv-v7',
+	entry_point='gym_heaterenv.envs:HeaterEnv8',
+)
+
+register(
 	id='HeaterEnvRelay-v0',
 	entry_point='gym_heaterenv.envs:HeaterEnvRelay',
 )
