@@ -25,7 +25,7 @@ test_temp = []
 
 #Testing
 
-for i in [float(j) / 100 for j in range(0, 10, 1)]:
+for i in np.arange(0.0, 0.1, 0.01):
 	print(i)
 	state = env.reset()
 	temperature, delta_temp = state
@@ -46,11 +46,13 @@ for i in [float(j) / 100 for j in range(0, 10, 1)]:
 				action = 255
 
 			temperature, delta_temp = state
-			print(f"Temperature {temperature}")
+			# print(f"Error: {temperature}")
+
 			temperature = round(temperature*10)/10
-			print(f"Rounded Temperature {temperature}")
+			# print(f"Rounded Error: {temperature}")
+
 			temperature += env.set_point
-			print(f"Water Temperature {temperature}")
+			# print(f"Water Temperature: {temperature}")
 
 			new_state, reward, done, info = env.step(action)
 			state = new_state
