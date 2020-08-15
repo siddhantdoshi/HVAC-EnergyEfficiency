@@ -19,6 +19,7 @@ class HeaterEnv7(gym.Env):
 		self.init_temp = 25.0
 		self.set_point = 30.0
 		self.temp_precision = 0.01
+		self.multiplier = 0.03
 
 		self.total_energy = 0.0
 		self.total_energy_absorbed = 0.0
@@ -40,6 +41,9 @@ class HeaterEnv7(gym.Env):
 
 		self.observation_space = spaces.Box(-threshold, threshold, dtype=np.float32)
 		self.action_space = spaces.Discrete(255)
+
+	def set_multiplier(self, multiplier):
+		self.multiplier = multiplier
 
 	def step(self, action):
 
@@ -72,7 +76,7 @@ class HeaterEnv7(gym.Env):
 
 		# print(f"Total energy : {self.total_energy}")
 
-		delta_temp = round((0.03 * (self.total_energy - self.total_energy_absorbed)) / ((self.mass * self.specific_heat_capacity) * self.temp_precision)) * self.temp_precision
+		delta_temp = round((self.multiplier * (self.total_energy - self.total_energy_absorbed)) / ((self.mass * self.specific_heat_capacity) * self.temp_precision)) * self.temp_precision
 		# print(f"delta_temp: {delta_temp}")
 		error += delta_temp
 		error = round(error / self.temp_precision) * self.temp_precision
