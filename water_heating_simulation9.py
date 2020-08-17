@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 
 env = gym.make('HeaterEnv-v7')
 
-total_episodes = 50000
+total_episodes = 150000
 max_steps = 900
 
 qtable = np.zeros((700, 255))
@@ -32,7 +32,7 @@ discount_rate = 0.8
 epsilon = 1.0				# Exploration rate
 max_epsilon = 1.0			# Exploration probability at start
 min_epsilon = 0.01			# Minimum exploration probability
-decay_rate = 0.0002			# Exponential decay rate for exploration prob
+decay_rate = 0.00002			# Exponential decay rate for exploration prob
 
 
 def state_to_index(state):
@@ -67,7 +67,8 @@ for episode in range(total_episodes):
 	state = env.reset()
 	index = state_to_index(state)
 
-	print(episode)
+	print(f"Episode: {episode}")
+	
 	# print(f"Temperature: {temperature}")
 
 	for step in range(max_steps):
@@ -169,12 +170,21 @@ for step in range(2 * max_steps):
 final_actions = [np.argmax(qtable[i, :]) for i in range(700)]
 
 plt.plot(np.arange(0, total_episodes), final_temp, "ro")
-plt.show()
+# plt.show()
+plt.savefig('final_training9.png')
+plt.clf()
+
 
 plt.plot(np.arange(0, len(test_temp)), test_temp)
-plt.show()
+# plt.show()
+plt.savefig('simulation9.png')
 
 print(final_actions)
+# np.savetxt("final_actions_9.csv", final_actions, delimiter=",")
+
+with open('final_actions_9.txt', 'w') as f:
+    for item in final_actions:
+        f.write("%s\n" % item)
 
 for obv, action in enumerate(final_actions):
 	print(obv, action)
