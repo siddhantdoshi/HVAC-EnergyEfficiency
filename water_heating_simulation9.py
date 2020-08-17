@@ -42,8 +42,8 @@ def state_to_index(state):
 	# print(f"Error: {error}; Temp change: {delta_temp}")
 
 	# for precision of 0.1
-	error = round(error*10)/10
-	delta_temp = round(delta_temp*10)/10
+	error = round(error * 10) / 10.0
+	delta_temp = round(delta_temp * 10) / 10.0
 	conjugate = 1000 * error + 10 * delta_temp + 5001
 	index = ((conjugate // 100) * 3) + (conjugate % 100)
 
@@ -82,8 +82,8 @@ for episode in range(total_episodes):
 			action = env.action_space.sample()
 
 		temperature, delta_temp = state
-		temperature = round(temperature*10)/10
-		delta_temp = round(delta_temp*10)/10
+		temperature = round(temperature * 10) / 10.0
+		delta_temp = round(delta_temp * 10) / 10.0
 
 		temperature += env.set_point
 
