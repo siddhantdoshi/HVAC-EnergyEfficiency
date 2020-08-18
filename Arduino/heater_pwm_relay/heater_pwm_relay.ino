@@ -15,15 +15,7 @@ float set_point = 30.0;
 float delta_temp = 5;
 
 float error = 0.0;
-float prev_error = 0.0;
-float derivative = 0.0;
-float integral = 0.0;
 
-float kp = 18.0;
-float ki = 0.004;
-float kd = 10.0;
-
-float output_power = 0.0;
 int pwm_output = 0;
 
 const int num_sensor_readings = 100;
@@ -95,12 +87,11 @@ void setup()
   analogWrite(HEATER_PWM, 0); // Sets heater to off
 
   set_point = get_temp() + delta_temp;
-  prev_error = delta_temp;
 
   Serial.begin(9600); // Initiates the serial to do the monitoring
 
 //  Serial.println(set_point);
-  Serial.println("Timestamp, Temperature (ºC), Set Point, Error, Integral, Derivative, Output power (W), PWM output, Current, PWM / Current");
+  Serial.println("Timestamp, Temperature (ºC), Set Point, Error, Output power (W), PWM output, Current, PWM / Current");
 }
 
 
@@ -112,54 +103,24 @@ void loop()
   if (count == 5)
   {
     set_point = temperature + delta_temp;
-    derivative = 0.0;
-    integral = 0.0;
     Serial.println(set_point);
   }
   
   error = set_point - temperature;
 
   current = analogRead(CS_PIN) * 5.0 / (1024 * 0.13) - 0.189;
-
-  derivative = error - prev_error;
   
-  if (temperature >= 0.9 * set_point) // and temperature <= set_point)
-  {
-//    if (derivative <= 0)
-//    {
-//      integral += error;
-//    } else
-//    {
-//      integral += 0.8 * error;
-//    }
-      integral += error;
-  }
-  
-  output_power = kp * error + ki * integral + kd * derivative;
 
-  if (output_power < 0)
-  {
-    pwm_output = 0.0;
-  }
-  else
-  {
-    pwm_output = (int) (sqrt(resistance * output_power) + 0.5) * 255.0 / max_voltage;
-  }
-
-  if (pwm_output > 255)
-  {
-    pwm_output = 255;
-  }
+  pwm_output = 1;
 
   // active heating and passive cooling.
-  if (temperature <= set_point){
-    analogWrite(HEATER_PWM, pwm_output);  
-  }else{
-   analogWrite(HEATER_PWM, 0);  
+  if (temperature < set_point){
+    pwm_output = 255;
   }
   
+  analogWrite(HEATER_PWM, pwm_output);  
+  
 
-  prev_error = error;
   Serial.print(temperature);
 
   Serial.print(", ");
@@ -167,15 +128,6 @@ void loop()
   
   Serial.print(", ");
   Serial.print(error);
-
-  Serial.print(", ");
-  Serial.print(integral);
-
-  Serial.print(", ");
-  Serial.print(derivative);
-  
-  Serial.print(", ");
-  Serial.print(output_power);
   
   Serial.print(", ");
   Serial.print(pwm_output);
