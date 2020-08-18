@@ -12,6 +12,7 @@ float resistance = 3.6;
 float max_voltage = 12.0;
 
 float set_point = 30.0;
+float delta_temp = 5;
 
 float error = 0.0;
 float prev_error = 0.0;
@@ -93,13 +94,13 @@ void setup()
   
   analogWrite(HEATER_PWM, 0); // Sets heater to off
 
-//  set_point = get_temp() + 10.0;
-  prev_error = 10;
+  set_point = get_temp() + delta_temp;
+  prev_error = delta_temp;
 
   Serial.begin(9600); // Initiates the serial to do the monitoring
 
 //  Serial.println(set_point);
-  Serial.println("Timestamp, Temperature (ºC), Error,  Output power (W), PWM output, Current, PWM / Current");
+  Serial.println("Timestamp, Temperature (ºC), Set Point, Error, Integral, Derivative, Output power (W), PWM output, Current, PWM / Current");
 }
 
 
@@ -110,7 +111,7 @@ void loop()
 
   if (count == 0)
   {
-    set_point = temperature + 10;
+    set_point = temperature + delta_temp;
     Serial.println(set_point);
     count ++;
   }
@@ -148,19 +149,29 @@ void loop()
   {
     pwm_output = 255;
   }
-// Added code
-  if (temperature < 30.0){
-    analogWrite(HEATER_PWM, 255);  
+
+  // active heating and passive cooling.
+  if (temperature <= set_point){
+    analogWrite(HEATER_PWM, pwm_output);  
   }else{
    analogWrite(HEATER_PWM, 0);  
   }
   
-// End of added code
+
   prev_error = error;
   Serial.print(temperature);
+
+  Serial.print(", ");
+  Serial.print(set_point);
   
   Serial.print(", ");
   Serial.print(error);
+
+  Serial.print(", ");
+  Serial.print(integral);
+
+  Serial.print(", ");
+  Serial.print(derivative);
   
   Serial.print(", ");
   Serial.print(output_power);
