@@ -95,7 +95,7 @@ void setup()
   action_table_size = sizeof(q_actions)/sizeof(q_actions[0]);
   
   Serial.begin(9600);
-  Serial.println("Timestamp, Temperature (ºC), Error, Delta_T, State, PWM output, Current, PWM / Current");
+  Serial.println("Timestamp, Temperature (ºC), Setpoint, Error, Delta_T, State, PWM output, Current, PWM / Current");
   // put your setup code here, to run once:
 
 }
