@@ -107,7 +107,7 @@ class HeaterEnv9(gym.Env):
 			if abs(avg_error) <= 0.1 and max_error <= 0.2 and min_error >= -0.2:
 				episode_done = True
 
-		reward = self.old_reward(error, delta_temp)
+		reward = self.reward(error, delta_temp)
 
 		return np.array(self.state), reward, episode_done, {}
 

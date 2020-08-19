@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 
 env = gym.make('HeaterEnv-v8')
 
-total_episodes = 2560 + 3000
+total_episodes = 2560 + 5000
 max_steps = 900
 
 qtable = np.zeros((700, 256))
@@ -192,18 +192,18 @@ final_actions = [np.argmax(qtable[i, :]) for i in range(700)]
 
 plt.plot(np.arange(0, total_episodes), final_temp, "ro")
 # plt.show()
-plt.savefig('final_training11.png')
+plt.savefig('final_training11_reward.png')
 plt.clf()
 
 
 plt.plot(np.arange(0, len(test_temp)), test_temp)
 # plt.show()
-plt.savefig('simulation11.png')
+plt.savefig('simulation11_reward.png')
 
 print(final_actions)
 # np.savetxt("final_actions_9.csv", final_actions, delimiter=",")
 
-with open('final_actions_11.txt', 'w') as f:
+with open('final_actions_11_reward.txt', 'w') as f:
 	for item in final_actions:
 		f.write("%s\n" % item)
 
