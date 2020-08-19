@@ -41,11 +41,19 @@ def state_to_index(state):
 	# print(f"State: {state}")
 	# print(f"Error: {error}; Temp change: {delta_temp}")
 
-	# for precision of 0.1
+	# for precision of 0.1 and delta_temp -0.1 to 0.1
 	error = round(error * 10) / 10.0
 	delta_temp = round(delta_temp * 10) / 10.0
 	conjugate = 1000 * error + 10 * delta_temp + 5001
 	index = ((conjugate // 100) * 3) + (conjugate % 100)
+
+	# for precision of 0.1 and delta_temp -0.2 to 0.2
+	"""
+	error = round(error * 10) / 10.0
+	delta_temp = round(delta_temp * 10) / 10.0
+	conjugate = 1000 * error + 10 * delta_temp + 5002
+	index = ((conjugate // 100) * 5) + (conjugate % 100)
+	"""
 
 	# for precision of 0.01
 	# conjugate = 10000 * error + 100 * delta_temp + 50010
