@@ -107,7 +107,7 @@ class HeaterEnv9(gym.Env):
 			if abs(avg_error) <= 0.1 and max_error <= 0.2 and min_error >= -0.2:
 				episode_done = True
 
-		reward = self.reward(error, delta_temp)
+		reward = self.old_reward(error, delta_temp)
 
 		return np.array(self.state), reward, episode_done, {}
 
@@ -118,42 +118,49 @@ class HeaterEnv9(gym.Env):
 		max_error = max(last_ten_errors)
 		min_error = min(last_ten_errors)
 
+		# last_ten_velocities = self.velocity_history[-60:]
+		avg_velocity = (last_ten_errors[0] - last_ten_errors[-1]) / len(last_ten_errors) # sum(last_ten_velocities) / len(last_ten_velocities)
+		# print(f"Average velocity: {avg_velocity}")
+		# max_vel = max(last_ten_velocities)
+		# min_vel = min(last_ten_velocities)
+
 		if abs(avg_error) <= 0.15 and max_error <= 0.2 and min_error >= -0.2:
 			return 20000
 
 		if error == 0:
-			return 10000
+			return 10000 + avg_velocity * 10000
 
 		if error > 0:
 			# reward = -ve and proportional to velocity and error
 			# reward = -10000 - (1000 * velocity * error)
 			# print(f"Overshoot: reward {reward}")
-			return -1000 - (1000 * velocity * error)
+			return - 10000 - 10000 * avg_velocity
 
 		if error > -1:
-			if velocity == 0:
+			if avg_velocity == 0:
 				return 15000
 
 			else:
-				return 100.0 / velocity - 100.0/error
+				return (50.0 / avg_velocity) - (50.0 / error)
 
 		if error > -2:
-			if velocity == 0:
+			if avg_velocity == 0:
 				return 1500
 
 			else:
-				return 10.0 / velocity - 10.0*error
+				return (5.0 / avg_velocity) - (5.0 * error)
 
 		if error > -2.5:
-			if velocity == 0:
-				return 0
+			if avg_velocity == 0:
+				return 7
 
 			else:
-				return 1.0 / velocity - 10.0*error
+				return 1.0 / avg_velocity - 10.0 * error
 
 		if error < 0:
-			return 100 * velocity
+			return 100 * avg_velocity
 
+		print("Outside all IFs")
 		return 0
 
 	def old_reward(self, error, velocity):
