@@ -118,8 +118,8 @@ class HeaterEnv9(gym.Env):
 		max_error = max(last_ten_errors)
 		min_error = min(last_ten_errors)
 
-		if abs(avg_error) <= 0.1 and max_error <= 0.2 and min_error >= -0.2:
-			return 10000
+		if abs(avg_error) <= 0.15 and max_error <= 0.2 and min_error >= -0.2:
+			return 20000
 
 		if error > 0:
 			# reward = -ve and proportional to velocity and error
@@ -127,16 +127,16 @@ class HeaterEnv9(gym.Env):
 			# print(f"Overshoot: reward {reward}")
 			return -1000 - (1000 * velocity * error)
 
-		if error > -0.75:
+		if error > -1:
 			if velocity == 0:
 				return 15000
 
 			else:
 				return 100.0 / velocity
 
-		if error > -1.5:
+		if error > -2:
 			if velocity == 0:
-				return 0
+				return 1500
 
 			else:
 				return 10.0 / velocity
