@@ -10,6 +10,7 @@ import pandas as pd
 
 import math
 import random
+import time
 
 import matplotlib.pyplot as plt
 
@@ -68,17 +69,18 @@ def state_to_index(state):
 	return int(index)
 
 
-def index_to_state(index):
-	# conjugate =
-	return -1
+# def index_to_state(index):
+# 	# conjugate =
+# 	return -1
 # Training
 
 
 for episode in range(total_episodes):
 	state = env.reset()
+	env.set_multiplier(0.02)
 	index = state_to_index(state)
 
-	print(f"Episode: {episode}")
+	# print(f"Episode: {episode}")
 
 	# print(f"Temperature: {temperature}")
 
@@ -115,7 +117,7 @@ for episode in range(total_episodes):
 		# print(f"Temperature: {temperature}")
 		# print(f"Temperature change: {delta_temp}")
 
-		if temperature > env.set_point + 0.2:
+		if temperature > env.set_point:
 			action = 0
 
 		new_state, reward, done, info = env.step(action)
@@ -139,17 +141,18 @@ for episode in range(total_episodes):
 			final_temp.append(temperature)
 
 			print(
-				f"Episode finished after {step + 1} timesteps with temperature: {temperature} degrees")
+				f"Episode {episode} finished after {step + 1} timesteps with temperature: {temperature} degrees")
 
 			break
 	if episode > 2551:
 		epsilon = min_epsilon + (max_epsilon - min_epsilon) * \
-                    np.exp(-decay_rate * (episode-2550))
+					np.exp(-decay_rate * (episode-2550))
 	# print(f"epsilon: {epsilon}")
 
 # qtable[1113: , 0] = 100
 
-np.savetxt("qtable_multistate_11.csv", qtable, delimiter=",")
+filename_suffix = time.strftime("%Y%m%d-%H%M%S")
+np.savetxt("qtable_multistate_11_" + filename_suffix + ".csv", qtable, delimiter=", ")
 
 
 #Testing
@@ -192,18 +195,18 @@ final_actions = [np.argmax(qtable[i, :]) for i in range(700)]
 
 plt.plot(np.arange(0, total_episodes), final_temp, "ro")
 # plt.show()
-plt.savefig('final_training11_reward.png')
+plt.savefig('final_training11_' + filename_suffix + '.png')
 plt.clf()
 
 
 plt.plot(np.arange(0, len(test_temp)), test_temp)
 # plt.show()
-plt.savefig('simulation11_reward.png')
+plt.savefig('simulation11_' + filename_suffix + '.png')
 
 print(final_actions)
 # np.savetxt("final_actions_9.csv", final_actions, delimiter=",")
 
-with open('final_actions_11_reward.txt', 'w') as f:
+with open('final_actions_11_' + filename_suffix + '.txt', 'w') as f:
 	for item in final_actions:
 		f.write("%s\n" % item)
 
