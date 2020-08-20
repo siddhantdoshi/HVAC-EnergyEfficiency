@@ -121,6 +121,9 @@ class HeaterEnv9(gym.Env):
 		if abs(avg_error) <= 0.15 and max_error <= 0.2 and min_error >= -0.2:
 			return 20000
 
+		if error == 0:
+			return 10000
+
 		if error > 0:
 			# reward = -ve and proportional to velocity and error
 			# reward = -10000 - (1000 * velocity * error)
@@ -132,21 +135,21 @@ class HeaterEnv9(gym.Env):
 				return 15000
 
 			else:
-				return 100.0 / velocity
+				return 100.0 / velocity - 100.0/error
 
 		if error > -2:
 			if velocity == 0:
 				return 1500
 
 			else:
-				return 10.0 / velocity
+				return 10.0 / velocity - 10.0*error
 
 		if error > -2.5:
 			if velocity == 0:
 				return 0
 
 			else:
-				return 1.0 / velocity
+				return 1.0 / velocity - 10.0*error
 
 		if error < 0:
 			return 100 * velocity
