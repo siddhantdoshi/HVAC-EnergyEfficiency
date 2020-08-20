@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 
 env = gym.make('HeaterEnv-v8')
 
-total_episodes = 2560 + 5000
+total_episodes = 2550 + 3000
 max_steps = 900
 
 qtable = np.zeros((700, 256))
@@ -35,7 +35,6 @@ max_epsilon = 1.0			# Exploration probability at start
 min_epsilon = 0.01			# Minimum exploration probability
 decay_rate = 0.002			# Exponential decay rate for exploration prob
 
-
 def state_to_index(state):
 	error, delta_temp = state
 
@@ -45,8 +44,10 @@ def state_to_index(state):
 	# for precision of 0.1 and delta_temp -0.1 to 0.1
 	error = round(error * 10) / 10.0
 	delta_temp = round(delta_temp * 10) / 10.0
-	if ( delta_temp > 0.1):
+	
+	if (delta_temp > 0.1):
 		delta_temp = 0.1
+
 	elif delta_temp < -0.1:
 		delta_temp = -0.1
 
@@ -68,7 +69,6 @@ def state_to_index(state):
 
 	return int(index)
 
-
 # def index_to_state(index):
 # 	# conjugate =
 # 	return -1
@@ -77,7 +77,7 @@ def state_to_index(state):
 
 for episode in range(total_episodes):
 	state = env.reset()
-	env.set_multiplier(0.02)
+	env.set_multiplier(0.03)
 	index = state_to_index(state)
 
 	# print(f"Episode: {episode}")
@@ -117,9 +117,6 @@ for episode in range(total_episodes):
 		# print(f"Temperature: {temperature}")
 		# print(f"Temperature change: {delta_temp}")
 
-		if temperature > env.set_point:
-			action = 0
-
 		new_state, reward, done, info = env.step(action)
 
 		new_index = state_to_index(new_state)
@@ -129,9 +126,7 @@ for episode in range(total_episodes):
 		# print(f"Reward: {reward}")
 		# print(f"new_index: {new_index}")
 
-		qtable[index, action] = qtable[index, action] + learning_rate * \
-			(reward + discount_rate *
-			 np.max(qtable[new_index, :]) - qtable[index, action])
+		qtable[index, action] = qtable[index, action] + learning_rate * (reward + discount_rate * np.max(qtable[new_index, :]) - qtable[index, action])
 
 		# print(f"Qtable value: {qtable[index, action]}")
 
@@ -146,7 +141,7 @@ for episode in range(total_episodes):
 			break
 	if episode > 2551:
 		epsilon = min_epsilon + (max_epsilon - min_epsilon) * \
-					np.exp(-decay_rate * (episode-2550))
+					np.exp(-decay_rate * (episode - 2550))
 	# print(f"epsilon: {epsilon}")
 
 # qtable[1113: , 0] = 100
@@ -164,7 +159,7 @@ state = env.reset()
 test_temp.clear()
 for step in range(2 * max_steps):
 
-		if temperature >= env.set_point + 0.3:
+		if temperature >= env.set_point + 0.1:
 			action = 0
 		else:
 			action = np.argmax(qtable[index, :])
@@ -176,7 +171,7 @@ for step in range(2 * max_steps):
 		# 	action = 255
 
 		temperature, delta_temp = state
-		temperature = round(temperature*10)/10
+		temperature = round(temperature * 10) / 10
 		temperature += env.set_point
 
 		index = state_to_index(state)
@@ -200,8 +195,8 @@ plt.clf()
 
 
 plt.plot(np.arange(0, len(test_temp)), test_temp)
-# plt.show()
 plt.savefig('simulation11_' + filename_suffix + '.png')
+plt.show()
 
 print(final_actions)
 # np.savetxt("final_actions_9.csv", final_actions, delimiter=",")
