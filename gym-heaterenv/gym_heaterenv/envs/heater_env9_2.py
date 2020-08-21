@@ -142,13 +142,13 @@ class HeaterEnv92(gym.Env):
 			if avg_velocity == 0:
 				return 100
 			else:
-				return 1/avg_velocity
+				return  100/avg_velocity
 
 		if avg_velocity == 0:
 			return (self.set_point + error)*10
 		
 		else:
-			return (self.set_point + error)*100 + 1/avg_velocity
+			return (self.set_point + error)*100
 
 	def reward(self, error, velocity):
 
