@@ -7,11 +7,7 @@ import random
 import numpy as np
 
 
-<<<<<<< HEAD
 class HeaterEnv91(gym.Env):
-=======
-class HeaterEnv9(gym.Env):
->>>>>>> 3694f240963b03b8f8e641bdba89d1d22ec5ee29
 	meta_data = {'render.modes': ['human']}
 
 	def __init__(self):
