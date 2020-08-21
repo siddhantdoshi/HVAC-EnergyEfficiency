@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 
 env = gym.make('HeaterEnv-v82')
 
-total_episodes = 79 + 5000
+total_episodes = 5000
 max_steps = 900
 
 qtable = np.zeros((700, 256))
@@ -81,7 +81,7 @@ episodes_run = 0
 
 for episode in range(total_episodes):
 	state = env.reset()
-	env.set_multiplier(0.03)
+	env.set_multiplier(0.02)
 
 	# if episode < 79:
 	# 	init_temp = 25.0 + episode / 10.0
@@ -146,9 +146,7 @@ for episode in range(total_episodes):
 
 			new_index = state_to_index(new_state)
 
-			# print(f"Action: {action}")
-			# print(f"New state: {new_state}")
-			# print(f"Reward: {reward}")
+			# print(f"Action: {action}, New state: {new_state}, Reward: {reward}")
 			# print(f"new_index: {new_index}")
 
 			qtable[index, action] = qtable[index, action] + learning_rate * \
