@@ -32,7 +32,7 @@ class HeaterEnv9(gym.Env):
 
 		self.time_step = 1.0
 
-		self.state = (self.init_temp, 0.0)
+		self.state = (self.init_temp - self.set_point, 0.0)
 
 		self.temp_history = []
 		self.velocity_history = []
@@ -95,9 +95,9 @@ class HeaterEnv9(gym.Env):
 		if error >= 3.0:
 			episode_done = True
 
-		if len(self.temp_history) > 60:
-			last_sixty_errors = self.temp_history[-60:]
-			avg_error = sum(last_sixty_errors) / 60.0
+		if len(self.temp_history) > 100:
+			last_sixty_errors = self.temp_history[-100:]
+			avg_error = sum(last_sixty_errors) / 100.0
 			max_error = max(last_sixty_errors)
 			min_error = min(last_sixty_errors)
 			# print(f"avg_error: {avg_error}")
@@ -124,34 +124,34 @@ class HeaterEnv9(gym.Env):
 		# max_vel = max(last_ten_velocities)
 		# min_vel = min(last_ten_velocities)
 
-		if abs(avg_error) <= 0.15 and max_error <= 0.2 and min_error >= -0.2:
-			return 20000
-
-		if error == 0:
-			return 10000 + avg_velocity * 10000
-
 		if error > 0:
 			# reward = -ve and proportional to velocity and error
 			# reward = -10000 - (1000 * velocity * error)
 			# print(f"Overshoot: reward {reward}")
-			return - 10000 - 10000 * avg_velocity
+			return - 10000 * avg_velocity
+
+		if abs(avg_error) <= 0.1 and max_error <= 0.2 and min_error >= -0.2:
+			return 20000
+
+		if error == 0:
+			return 10000 - abs(avg_velocity) * 10000
 
 		if error > -1:
-			if avg_velocity == 0:
+			if abs(avg_velocity) >= 0 and abs(avg_velocity) <= 0.02:
 				return 15000
 
 			else:
 				return (50.0 / avg_velocity) - (50.0 / error)
 
 		if error > -2:
-			if avg_velocity == 0:
+			if abs(avg_velocity) >= 0 and abs(avg_velocity) <= 0.02:
 				return 1500
 
 			else:
 				return (5.0 / avg_velocity) - (5.0 * error)
 
 		if error > -2.5:
-			if avg_velocity == 0:
+			if abs(avg_velocity) >= 0 and abs(avg_velocity) <= 0.02:
 				return 7
 
 			else:
@@ -195,7 +195,7 @@ class HeaterEnv9(gym.Env):
 
 		return reward
 
-	def reset(self):
+	def reset(self, init_temp = 25.0):
 		self.total_energy_absorbed = 0.0
 		self.total_energy = 0.0
 
