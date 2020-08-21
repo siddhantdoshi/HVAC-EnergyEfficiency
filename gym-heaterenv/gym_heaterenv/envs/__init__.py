@@ -9,5 +9,6 @@ from gym_heaterenv.envs.heater_env8 import HeaterEnv8
 from gym_heaterenv.envs.heater_env9 import HeaterEnv9
 from gym_heaterenv.envs.heater_env9_1 import HeaterEnv91
 from gym_heaterenv.envs.heater_env9_2 import HeaterEnv92
+from gym_heaterenv.envs.heater_env10 import HeaterEnv10
 
 from gym_heaterenv.envs.heater_env_relay import HeaterEnvRelay
