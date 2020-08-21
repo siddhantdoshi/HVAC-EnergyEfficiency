@@ -14,7 +14,7 @@ import time
 
 import matplotlib.pyplot as plt
 
-env = gym.make('HeaterEnv-v8')
+env = gym.make('HeaterEnv-v81')
 
 total_episodes = 2560 + 5000
 max_steps = 900
