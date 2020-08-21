@@ -46,6 +46,7 @@ register(
 )
 
 register(
+<<<<<<< HEAD
 	id='HeaterEnv-v81',
 	entry_point='gym_heaterenv.envs:HeaterEnv91',
 )
@@ -57,6 +58,8 @@ register(
 
 
 register(
+=======
+>>>>>>> 3694f240963b03b8f8e641bdba89d1d22ec5ee29
 	id='HeaterEnvRelay-v0',
 	entry_point='gym_heaterenv.envs:HeaterEnvRelay',
 )
