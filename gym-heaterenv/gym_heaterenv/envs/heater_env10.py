@@ -131,7 +131,7 @@ class HeaterEnv10(gym.Env):
 
 		if error > -1:
 			if velocity < 0:
-				return -0.5
+				return 1.0
 			
 			else:
 				return -100 * acceleration - 10 * velocity
