@@ -114,7 +114,7 @@ for episode in range(total_episodes):
 
 		temperature += env.set_point
 
-		if temperature >= set_point + 0.2:
+		if temperature >= env.set_point + 0.2:
 			action = 0
 
 		index = state_to_index(state)
