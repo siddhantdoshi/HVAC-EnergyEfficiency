@@ -134,7 +134,7 @@ class HeaterEnv10(gym.Env):
 		# 	return -10 * error * avg_velocity - 5 * error * avg_accel
 
 		if error > 0:
-			return -1000 * error * avg_velocity
+			return -1 * error * avg_velocity
 
 		if error > -1:
 			# if velocity < 0:

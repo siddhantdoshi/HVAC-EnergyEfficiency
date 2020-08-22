@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 
 env = gym.make('HeaterEnv-v9')
 
-total_episodes = 20000
+total_episodes = 30000
 max_steps = 900
 
 qtable = np.zeros((800, 256))
@@ -27,7 +27,7 @@ print(qtable)
 final_temp = []
 test_temp = []
 
-learning_rate = 0.8
+learning_rate = 0.5
 discount_rate = 0.8
 
 epsilon = 1.0				# Exploration rate
