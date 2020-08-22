@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 
 env = gym.make('HeaterEnv-v9')
 
-total_episodes = 30000
+total_episodes = 20000
 max_steps = 900
 
 qtable = np.zeros((800, 256))
