@@ -80,7 +80,7 @@ class HeaterEnv10(gym.Env):
 		# print(f"Total energy : {self.total_energy}")
 
 		delta_temp_calculated = (self.multiplier * (self.total_energy - self.total_energy_absorbed)) / (self.mass * self.specific_heat_capacity)
-		delta_temp = np.random.normal(loc=delta_temp_calculated, scale=0.02)
+		delta_temp = np.random.normal(loc=delta_temp_calculated, scale=0.015)
 
 		error += delta_temp
 		acceleration = delta_temp - self.prev_velocity
@@ -122,25 +122,35 @@ class HeaterEnv10(gym.Env):
 	def reward(self, error, velocity, acceleration):
 
 		last_ten_errors = self.error_history[-10:]
-		avg_error = sum(last_ten_errors) / 10.0
-		max_error = max(last_ten_errors)
-		min_error = min(last_ten_errors)
+		avg_error = sum(last_ten_errors) / len(last_ten_errors)
+
+		last_ten_velocities = self.velocity_history[-10:]
+		avg_velocity = sum(last_ten_velocities) / len(last_ten_velocities)
+
+		last_ten_accel = self.acceleration_history[-10:]
+		avg_accel = sum(last_ten_accel) / len(last_ten_accel)
+
+		# if error > 0:
+		# 	return -10 * error * avg_velocity - 5 * error * avg_accel
 
 		if error > 0:
-			return -10 * error * velocity - 5 * error * acceleration
+			return -1000 * error * avg_velocity
 
 		if error > -1:
-			if velocity < 0:
-				return 1.0
+			# if velocity < 0:
+			# 	return 1.0
 			
-			else:
-				return -100 * acceleration - 10 * velocity
+			# else:
+			# 	return -100 * acceleration - 10 * velocity
+
+			return -10 * avg_accel - 100 * avg_velocity
+			# return 1.0 / ((error + 1) * avg_velocity) + 2.0 / ((error + 1) * avg_accel)
 
 		if error > -2.5:
-			return -20 * error * velocity - 5 * abs(acceleration)
+			return -20 * error * avg_velocity - 5 * abs(avg_accel)
 
 		else:
-			return -2 * error * (5 * velocity - 2 * acceleration)
+			return -2 * error * (5 * avg_velocity - 2 * avg_accel)
 
 	def old_reward2(self, error, velocity):
 

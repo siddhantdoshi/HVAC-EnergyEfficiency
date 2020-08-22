@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 
 env = gym.make('HeaterEnv-v9')
 
-total_episodes = 100000
+total_episodes = 20000
 max_steps = 900
 
 qtable = np.zeros((800, 256))
@@ -27,13 +27,13 @@ print(qtable)
 final_temp = []
 test_temp = []
 
-learning_rate = 0.2
+learning_rate = 0.8
 discount_rate = 0.8
 
 epsilon = 1.0				# Exploration rate
 max_epsilon = 1.0			# Exploration probability at start
 min_epsilon = 0.01			# Minimum exploration probability
-decay_rate = 0.0001			# Exponential decay rate for exploration prob
+decay_rate = 0.0002			# Exponential decay rate for exploration prob
 
 def state_to_index(state):
 	error, delta_temp, acceleration = state
@@ -139,10 +139,10 @@ for episode in range(total_episodes):
 
 		if done or (step == max_steps - 1):
 			final_temp.append(temperature)
-
 			print(f"Episode {episode} finished after {step + 1} timesteps with temperature: {temperature} degrees")
 
 			break
+
 	if episode > 2551:
 		epsilon = min_epsilon + (max_epsilon - min_epsilon) * np.exp(-decay_rate * (episode))
 	
@@ -151,7 +151,7 @@ for episode in range(total_episodes):
 # qtable[1113: , 0] = 100
 
 filename_suffix = time.strftime("%Y%m%d-%H%M%S")
-np.savetxt("Data/21-Aug-2020/New/qtable_multistate_13_" + filename_suffix + ".csv", qtable, delimiter=", ")
+np.savetxt("Data/22-Aug-2020/Raw/qtable_multistate_13_" + filename_suffix + ".csv", qtable, delimiter=", ")
 
 
 #Testing
@@ -198,18 +198,18 @@ final_actions = [np.argmax(qtable[i, :]) for i in range(700)]
 
 plt.plot(np.arange(0, total_episodes), final_temp, "ro")
 # plt.show()
-plt.savefig('Data/21-Aug-2020/New/final_training13_' + filename_suffix + '.png')
+plt.savefig('Data/22-Aug-2020/Raw/final_training13_' + filename_suffix + '.png')
 plt.clf()
 
 
 plt.plot(np.arange(0, len(test_temp)), test_temp)
-plt.savefig('Data/21-Aug-2020/New/simulation13_' + filename_suffix + '.png')
+plt.savefig('Data/22-Aug-2020/Raw/simulation13_' + filename_suffix + '.png')
 plt.show()
 
 print(final_actions)
 # np.savetxt("final_actions_9.csv", final_actions, delimiter=",")
 
-with open('Data/21-Aug-2020/New/final_actions_13_' + filename_suffix + '.txt', 'w') as f:
+with open('Data/22-Aug-2020/Raw/final_actions_13_' + filename_suffix + '.txt', 'w') as f:
 		f.write(str(final_actions))
 		f.write("\n")
 
