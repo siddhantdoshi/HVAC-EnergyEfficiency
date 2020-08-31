@@ -121,34 +121,34 @@ class HeaterEnv10(gym.Env):
 
 	def reward(self, error, velocity, acceleration):
 
+		# find the average error ( deviation from set point) from the last 10 readings
 		last_ten_errors = self.error_history[-10:]
 		avg_error = sum(last_ten_errors) / len(last_ten_errors)
 
+		# find the average rate of change of temperature from the last 10 readings
 		last_ten_velocities = self.velocity_history[-10:]
 		avg_velocity = sum(last_ten_velocities) / len(last_ten_velocities)
 
+		# find the average acceleration of temperature from the last 10 readings
 		last_ten_accel = self.acceleration_history[-10:]
 		avg_accel = sum(last_ten_accel) / len(last_ten_accel)
 
-		# if error > 0:
-		# 	return -10 * error * avg_velocity - 5 * error * avg_accel
 
+		# penalize if temperature has overshoot
 		if error > 0:
 			return -1 * error * avg_velocity
 
+		# create buckets of temperature zone and rewards according to buckets
+
+		# bucket 1: near the set point, reward low velocity and low acceleration
 		if error > -1:
-			# if velocity < 0:
-			# 	return 1.0
-			
-			# else:
-			# 	return -100 * acceleration - 10 * velocity
-
 			return -10 * avg_accel - 100 * avg_velocity
-			# return 1.0 / ((error + 1) * avg_velocity) + 2.0 / ((error + 1) * avg_accel)
-
+			
+		# bucket 2: near the mid point, reward high velocity but do not accelerate heating
 		if error > -2.5:
 			return -20 * error * avg_velocity - 5 * abs(avg_accel)
 
+		# bucket 3:  far away from set point, reward high velocity and high acceleration
 		else:
 			return -2 * error * (5 * avg_velocity - 2 * avg_accel)
 
